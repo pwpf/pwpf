@@ -90,7 +90,7 @@ class View
             $templatePath = 'templates/';
         }
         if (!$defaultPath) {
-            $defaultPath = plugin_dir_path(__FILE__) . '../../../app/templates/';
+            $defaultPath = plugin_dir_path(__FILE__) . '../../../../app/templates/';
         }
         // Look within passed path within the theme - this is priority.
         $template = locate_template([trailingslashit($templatePath) . $templateName, $templateName]);
