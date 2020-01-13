@@ -1,0 +1,14 @@
+{
+    "name": "pwpf/pwpf",
+    "description": "Plugin WordPress Framework",
+    "type": "library",
+    "license": "MIT",
+    "minimum-stability": "dev",
+    "authors": [
+        {
+            "name": "Sławomir Kaleta",
+            "email": "slaszka@gmail.com"
+        }
+    ],
+    "require": {}
+}
