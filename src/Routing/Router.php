@@ -33,14 +33,14 @@ class Router
      *
      * @var array
      */
-    private static $mvc_components = [];
+    private static $mvcComponents = [];
 
-    public $route_type_to_register;
+    public $routeTypeToRegister;
 
     /**
      * @var string
      */
-    public $current_controller;
+    public $currentController;
 
     /**
      * Constructor
@@ -48,19 +48,19 @@ class Router
      */
     public function __construct()
     {
-        $this->register_hook_callbacks();
+        $this->registerHookCallbacks();
     }
 
     /**
      * Register callbacks for actions and filters
      */
-    protected function register_hook_callbacks()
+    protected function registerHookCallbacks()
     {
-        add_action('init', [$this, 'register_generic_model_only_routes']);
-        add_action('wp', [$this, 'register_late_frontend_model_only_routes']);
+        add_action('init', [$this, 'registerGenericModelOnlyRoutes']);
+        add_action('wp', [$this, 'registerLateFrontendModelOnlyRoutes']);
 
-        add_action('init', [$this, 'register_generic_routes']);
-        add_action('wp', [$this, 'register_late_frontend_routes']);
+        add_action('init', [$this, 'registerGenericRoutes']);
+        add_action('wp', [$this, 'registerLateFrontendRoutes']);
     }
 
     /**
@@ -68,32 +68,32 @@ class Router
      *
      * @return void
      */
-    public function register_generic_model_only_routes()
+    public function registerGenericModelOnlyRoutes()
     {
-        $this->register_model_only_routes();
+        $this->registerModelOnlyRoutes();
     }
 
     /**
      * Registers `Model Only` Enqueued Routes
      *
-     * @param bool $register_late_frontend_routes Whether to register late frontend routes.
+     * @param bool $registerLateFrontendRoutes Whether to register late frontend routes.
      *
      * @return void
      */
-    public function register_model_only_routes($register_late_frontend_routes = false)
+    public function registerModelOnlyRoutes($registerLateFrontendRoutes = false)
     {
-        if ($register_late_frontend_routes && empty(
-            $route_types = $this->late_frontend_route_types()
+        if ($registerLateFrontendRoutes && empty(
+            $routeTypes = $this->lateFrontendRouteTypes()
             )) { // @codingStandardsIgnoreLine.
             return;
-        } elseif (empty($route_types = $this->generic_route_types())) { // @codingStandardsIgnoreLine.
+        } elseif (empty($routeTypes = $this->genericRouteTypes())) { // @codingStandardsIgnoreLine.
             return;
         }
 
-        foreach ($route_types as $route_type) {
-            if ($this->is_request($route_type) && !empty(static::$models[$route_type])) {
-                foreach (static::$models[$route_type] as $model) {
-                    $this->dispatch_only_model($model, $route_type);
+        foreach ($routeTypes as $routeType) {
+            if ($this->isRequest($routeType) && !empty(static::$models[$routeType])) {
+                foreach (static::$models[$routeType] as $model) {
+                    $this->dispatchOnlyModel($model, $routeType);
                 }
             }
         }
@@ -104,7 +104,7 @@ class Router
      *
      * @return array
      */
-    public function late_frontend_route_types()
+    public function lateFrontendRouteTypes()
     {
         return apply_filters(
             'pwpf_late_frontend_route_types',
@@ -120,7 +120,7 @@ class Router
      *
      * @return array
      */
-    public function generic_route_types()
+    public function genericRouteTypes()
     {
         return apply_filters(
             'pwpf_route_types',
@@ -139,13 +139,13 @@ class Router
     /**
      * Identifies Request Type
      *
-     * @param string $route_type Route Type to identify.
+     * @param string $routeType Route Type to identify.
      *
      * @return bool
      */
-    private function is_request($route_type)
+    private function isRequest($routeType)
     {
-        switch ($route_type) {
+        switch ($routeType) {
             case RouteType::ANY:
                 return true;
             case RouteType::ADMIN:
@@ -160,7 +160,7 @@ class Router
                 return (!is_admin() || defined('DOING_AJAX')) && !defined('DOING_CRON') && !defined('REST_REQUEST');
             case RouteType::LATE_FRONTEND:
             case RouteType::LATE_FRONTEND_WITH_POSSIBLE_AJAX:
-                return $this->is_request('frontend') || (current_action() == 'wp') || (did_action('wp') === 1);
+                return $this->isRequest('frontend') || (current_action() == 'wp') || (did_action('wp') === 1);
         }
     }
 
@@ -168,11 +168,11 @@ class Router
      * Dispatches the model only route by creating a Model object
      *
      * @param mixed  $model      Model to be associated with the Route. Could be String or callback.
-     * @param string $route_type Route Type.
+     * @param string $routeType Route Type.
      *
      * @return void
      */
-    private function dispatch_only_model($model, $route_type)
+    private function dispatchOnlyModel($model, $routeType)
     {
         if (false === $model) {
             return;
@@ -187,11 +187,11 @@ class Router
         }
 
         @list($model, $action) = explode('@', $model);
-        $model = $this->get_fully_qualified_class_name($model, 'model', $route_type);
-        $model_instance = $model::get_instance();
+        $model = $this->getFullyQualifiedClassName($model, 'model', $routeType);
+        $modelInstance = $model::getInstance();
 
         if (null !== $action) {
-            $model_instance->$action();
+            $modelInstance->$action();
         }
     }
 
@@ -199,23 +199,23 @@ class Router
      * Returns the Full Qualified Class Name for given class name
      *
      * @param string $class              Class whose FQCN needs to be found out.
-     * @param string $mvc_component_type Could be between 'model', 'view' or 'controller'.
-     * @param string $route_type         Could be 'admin' or 'frontend'.
+     * @param string $mvcComponentType Could be between 'model', 'view' or 'controller'.
+     * @param string $routeType         Could be 'admin' or 'frontend'.
      *
      * @return string Retuns Full Qualified Class Name.
      */
-    private function get_fully_qualified_class_name($class, $mvc_component_type, $route_type)
+    private function getFullyQualifiedClassName($class, $mvcComponentType, $routeType)
     {
         // If route type is admin or frontend.
-        if (strpos($route_type, 'admin') !== false || strpos($route_type, 'frontend') !== false) {
+        if (strpos($routeType, 'admin') !== false || strpos($routeType, 'frontend') !== false) {
             if (isset($this->app) and !empty($this->app)) {
                 $fqcn = $this->app . '\\App\\';
             } else {
                 throw new \Exception('Please setApp in routes.php');
             }
 
-            $fqcn .= ucfirst($mvc_component_type) . 's\\';
-            $fqcn .= strpos($route_type, 'admin') !== false ? 'Admin\\' : 'Frontend\\';
+            $fqcn .= ucfirst($mvcComponentType) . 's\\';
+            $fqcn .= strpos($routeType, 'admin') !== false ? 'Admin\\' : 'Frontend\\';
 
             if (class_exists($fqcn . $class)) {
                 return $fqcn . $class;
@@ -236,9 +236,9 @@ class Router
      *
      * @return void
      */
-    public function register_late_frontend_model_only_routes()
+    public function registerLateFrontendModelOnlyRoutes()
     {
-        $this->register_model_only_routes(self::REGISTER_LATE_FRONTEND_ROUTES);
+        $this->registerModelOnlyRoutes(self::REGISTER_LATE_FRONTEND_ROUTES);
     }
 
     /**
@@ -246,88 +246,88 @@ class Router
      *
      * @return void
      */
-    public function register_generic_routes()
+    public function registerGenericRoutes()
     {
-        $this->register_routes();
+        $this->registerRoutes();
     }
 
     /**
      * Registers Enqueued Routes
      *
-     * @param bool $register_late_frontend_routes Whether to register late frontend routes.
+     * @param bool $registerLateFrontendRoutes Whether to register late frontend routes.
      *
      * @return void
      */
-    private function register_routes($register_late_frontend_routes = false)
+    private function registerRoutes($registerLateFrontendRoutes = false)
     {
-        if ($register_late_frontend_routes) {
-            $route_types = $this->late_frontend_route_types();
+        if ($registerLateFrontendRoutes) {
+            $routeTypes = $this->lateFrontendRouteTypes();
         } else {
-            $route_types = $this->generic_route_types();
+            $routeTypes = $this->genericRouteTypes();
         }
 
-        if (empty($route_types)) {
+        if (empty($routeTypes)) {
             return;
         }
 
-        foreach ($route_types as $route_type) {
-            if ($this->is_request($route_type) && !empty(static::$mvc_components[$route_type])) {
-                foreach (static::$mvc_components[$route_type] as $mvc_component) {
-                    $this->dispatch($mvc_component, $route_type);
+        foreach ($routeTypes as $routeType) {
+            if ($this->isRequest($routeType) && !empty(static::$mvcComponents[$routeType])) {
+                foreach (static::$mvcComponents[$routeType] as $mvcComponent) {
+                    $this->dispatch($mvcComponent, $routeType);
                 }
             }
         }
     }
 
     /**
-     * Dispatches the route of specified $route_type by creating a controller object
+     * Dispatches the route of specified $routeType by creating a controller object
      *
-     * @param array  $mvc_component Model-View-Controller triads for all registered routes.
-     * @param string $route_type    Route Type.
+     * @param array  $mvcComponent Model-View-Controller triads for all registered routes.
+     * @param string $routeType    Route Type.
      *
      * @return void
      */
-    private function dispatch($mvc_component, $route_type)
+    private function dispatch($mvcComponent, $routeType)
     {
         $model = false;
         $view = false;
 
-        if (isset($mvc_component['controller']) && false === $mvc_component['controller']) {
+        if (isset($mvcComponent['controller']) && false === $mvcComponent['controller']) {
             return;
         }
 
-        if (is_callable($mvc_component['controller'])) {
-            $mvc_component['controller'] = call_user_func($mvc_component['controller']);
+        if (is_callable($mvcComponent['controller'])) {
+            $mvcComponent['controller'] = call_user_func($mvcComponent['controller']);
 
-            if (false === $mvc_component['controller']) {
+            if (false === $mvcComponent['controller']) {
                 return;
             }
         }
 
-        if (isset($mvc_component['model']) && false !== $mvc_component['model']) {
-            if (is_callable($mvc_component['model'])) {
-                $mvc_component['model'] = call_user_func($mvc_component['model']);
+        if (isset($mvcComponent['model']) && false !== $mvcComponent['model']) {
+            if (is_callable($mvcComponent['model'])) {
+                $mvcComponent['model'] = call_user_func($mvcComponent['model']);
             }
 
-            $model = $this->get_fully_qualified_class_name($mvc_component['model'], 'model', $route_type);
+            $model = $this->getFullyQualifiedClassName($mvcComponent['model'], 'model', $routeType);
         }
 
-        if (isset($mvc_component['view']) && false !== $mvc_component['view']) {
-            if (is_callable($mvc_component['view'])) {
-                $mvc_component['view'] = call_user_func($mvc_component['view']);
+        if (isset($mvcComponent['view']) && false !== $mvcComponent['view']) {
+            if (is_callable($mvcComponent['view'])) {
+                $mvcComponent['view'] = call_user_func($mvcComponent['view']);
             }
 
-            $view = $this->get_fully_qualified_class_name($mvc_component['view'], 'view', $route_type);
+            $view = $this->getFullyQualifiedClassName($mvcComponent['view'], 'view', $routeType);
         }
 
 
-        @list($controller, $action) = explode('@', $mvc_component['controller']);
+        @list($controller, $action) = explode('@', $mvcComponent['controller']);
 
-        $controller = $this->get_fully_qualified_class_name($controller, 'controller', $route_type);
-        $controller_instance = $controller::get_instance($model, $view);
+        $controller = $this->getFullyQualifiedClassName($controller, 'controller', $routeType);
+        $controllerInstance = $controller::getInstance($model, $view);
 
         if (null !== $action) {
-            $controller_instance->$action();
+            $controllerInstance->$action();
         }
     }
 
@@ -336,9 +336,9 @@ class Router
      *
      * @return void
      */
-    public function register_late_frontend_routes()
+    public function registerLateFrontendRoutes()
     {
-        $this->register_routes(self::REGISTER_LATE_FRONTEND_ROUTES);
+        $this->registerRoutes(self::REGISTER_LATE_FRONTEND_ROUTES);
     }
 
     /**
@@ -349,9 +349,9 @@ class Router
      *
      * @return Router Returns `Router` object.
      */
-    public function register_route_of_type($type)
+    public function registerRouteOfType($type)
     {
-        if (in_array($type, $this->late_frontend_route_types()) && did_action('wp')) {
+        if (in_array($type, $this->lateFrontendRouteTypes()) && did_action('wp')) {
             trigger_error(
                 __(
                     'Late Routes can not be registered after `wp` hook is triggered. Register your route before `wp` hook is triggered.',
@@ -361,7 +361,7 @@ class Router
             ); // @codingStandardsIgnoreLine.
         }
 
-        if (in_array($type, $this->generic_route_types()) && did_action('init')) {
+        if (in_array($type, $this->genericRouteTypes()) && did_action('init')) {
             trigger_error(
                 __(
                     'Non-Late Routes can not be registered after `init` hook is triggered. Register your route before `init` hook is triggered.',
@@ -371,7 +371,7 @@ class Router
             ); // @codingStandardsIgnoreLine.
         }
 
-        $this->route_type_to_register = $type;
+        $this->routeTypeToRegister = $type;
         return $this;
     }
 
@@ -382,12 +382,12 @@ class Router
      *
      * @return mixed
      */
-    public function with_just_model($model)
+    public function withJustModel($model)
     {
         if (false === $model) {
             return $this;
         }
-        static::$models[$this->route_type_to_register][] = $model;
+        static::$models[$this->routeTypeToRegister][] = $model;
     }
 
     /**
@@ -397,15 +397,15 @@ class Router
      *
      * @return object Returns Router Object
      */
-    public function with_controller($controller)
+    public function withController($controller)
     {
         if (false === $controller) {
             return $this;
         }
 
-        $this->current_controller = $this->build_controller_unique_id($controller);
+        $this->currentController = $this->buildControllerUniqueId($controller);
 
-        static::$mvc_components[$this->route_type_to_register][$this->current_controller] = ['controller' => $controller];
+        static::$mvcComponents[$this->routeTypeToRegister][$this->currentController] = ['controller' => $controller];
 
         return $this;
     }
@@ -421,7 +421,7 @@ class Router
      *
      * @return string
      */
-    public function build_controller_unique_id($controller)
+    public function buildControllerUniqueId($controller)
     {
         $prefix = mt_rand() . '_';
 
@@ -456,10 +456,10 @@ class Router
      *
      * @return object Returns Router Object
      */
-    public function with_model($model)
+    public function withModel($model)
     {
-        if (isset(static::$mvc_components[$this->route_type_to_register][$this->current_controller]['controller'])) {
-            static::$mvc_components[$this->route_type_to_register][$this->current_controller]['model'] = $model;
+        if (isset(static::$mvcComponents[$this->routeTypeToRegister][$this->currentController]['controller'])) {
+            static::$mvcComponents[$this->routeTypeToRegister][$this->currentController]['model'] = $model;
         }
         return $this;
     }
@@ -471,10 +471,10 @@ class Router
      *
      * @return object Returns Router Object
      */
-    public function with_view($view)
+    public function withView($view)
     {
-        if (isset(static::$mvc_components[$this->route_type_to_register][$this->current_controller]['controller'])) {
-            static::$mvc_components[$this->route_type_to_register][$this->current_controller]['view'] = $view;
+        if (isset(static::$mvcComponents[$this->routeTypeToRegister][$this->currentController]['controller'])) {
+            static::$mvcComponents[$this->routeTypeToRegister][$this->currentController]['view'] = $view;
         }
         return $this;
     }

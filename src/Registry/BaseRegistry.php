@@ -25,7 +25,7 @@ if (!trait_exists('Base_Registry')) {
          *
          * @var array
          */
-        protected static $stored_objects = [];
+        protected static $storedObjects = [];
 
         /**
          * Add object to registry
@@ -43,7 +43,7 @@ if (!trait_exists('Base_Registry')) {
                     E_USER_ERROR
                 ); // @codingStandardsIgnoreLine.
             }
-            static::$stored_objects[$key] = $value;
+            static::$storedObjects[$key] = $value;
         }
 
         /**
@@ -62,11 +62,11 @@ if (!trait_exists('Base_Registry')) {
                 ); // @codingStandardsIgnoreLine.
             }
 
-            if (!isset(static::$stored_objects[$key])) {
+            if (!isset(static::$storedObjects[$key])) {
                 return null;
             }
 
-            return static::$stored_objects[$key];
+            return static::$storedObjects[$key];
         }
 
         /**
@@ -74,9 +74,9 @@ if (!trait_exists('Base_Registry')) {
          *
          * @return array
          */
-        public static function get_all_objects()
+        public static function getAllObjects()
         {
-            return static::$stored_objects;
+            return static::$storedObjects;
         }
     }
 }

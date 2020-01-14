@@ -18,7 +18,7 @@ class Model
      *
      * @return object
      */
-    public static function get_instance()
+    public static function getInstance()
     {
         $classname = get_called_class();
         $instance = ModelRegistry::get($classname);

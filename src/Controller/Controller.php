@@ -65,10 +65,10 @@ abstract class Controller
      *
      * @return object
      */
-    public static function get_instance($model_class_name = false, $view_class_name = false)
+    public static function getInstance($model_class_name = false, $view_class_name = false)
     {
         $classname = get_called_class();
-        $key_in_registry = ControllerRegistry::get_key($classname, $model_class_name, $view_class_name);
+        $key_in_registry = ControllerRegistry::getKey($classname, $model_class_name, $view_class_name);
 
         $instance = ControllerRegistry::get($key_in_registry);
 
@@ -76,7 +76,7 @@ abstract class Controller
         if (null === $instance) {
             // Decide model to be passed to the constructor.
             if (false != $model_class_name) {
-                $model = $model_class_name::get_instance();
+                $model = $model_class_name::getInstance();
             } else {
                 $model = new Model();
             }
