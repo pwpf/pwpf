@@ -3,7 +3,6 @@
 namespace PWPF\Registry;
 
 if (!trait_exists('Base_Registry')) {
-
     /**
      * Base Registry Trait
      *

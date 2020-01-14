@@ -3,7 +3,6 @@
 namespace PWPF\Registry;
 
 if (!class_exists(__NAMESPACE__ . '\\' . 'Controller')) {
-
     /**
      * Controller Registry
      *

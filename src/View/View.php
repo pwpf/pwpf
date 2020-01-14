@@ -2,6 +2,12 @@
 
 namespace PWPF\View;
 
+use function extract;
+use function file_exists;
+use function is_array;
+use function ob_get_clean;
+use function ob_start;
+
 /**
  * Class Responsible for Loading Templates
  *
@@ -47,8 +53,8 @@ class View
      */
     public function renderTemplate($templateName, $args = [], $templatePath = '', $defaultPath = '')
     {
-        if ($args && \is_array($args)) {
-            \extract($args);
+        if ($args && is_array($args)) {
+            extract($args);
             // @codingStandardsIgnoreLine.
         }
         if (!empty($this->config['defaultPath'])) {
@@ -56,14 +62,14 @@ class View
         }
 
         $located = $this->locateTemplate($templateName, $templatePath, $defaultPath);
-        if (\false == $located) {
+        if (false == $located) {
             return;
         }
-        \ob_start();
+        ob_start();
         do_action($this->config['appName'] . '_before_template_render', $templateName, $templatePath, $located, $args);
         include $located;
         do_action($this->config['appName'] . '_after_template_render', $templateName, $templatePath, $located, $args);
-        return \ob_get_clean();
+        return ob_get_clean();
         // @codingStandardsIgnoreLine.
     }
 
@@ -98,7 +104,7 @@ class View
         if (!$template) {
             $template = $defaultPath . $templateName;
         }
-        if (\file_exists($template)) {
+        if (file_exists($template)) {
             // Return what we found.
             return apply_filters(
                 $this->config['appName'] . '_locate_template',
@@ -107,7 +113,7 @@ class View
                 $templatePath
             );
         } else {
-            return \false;
+            return false;
         }
     }
 }

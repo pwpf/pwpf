@@ -2,6 +2,7 @@
 
 namespace PWPF\Routing;
 
+use Exception;
 use PWPF\Routing\RouteType as RouteType;
 
 use function strpos;
@@ -167,7 +168,7 @@ class Router
     /**
      * Dispatches the model only route by creating a Model object
      *
-     * @param mixed  $model      Model to be associated with the Route. Could be String or callback.
+     * @param mixed  $model     Model to be associated with the Route. Could be String or callback.
      * @param string $routeType Route Type.
      *
      * @return void
@@ -198,9 +199,9 @@ class Router
     /**
      * Returns the Full Qualified Class Name for given class name
      *
-     * @param string $class              Class whose FQCN needs to be found out.
+     * @param string $class            Class whose FQCN needs to be found out.
      * @param string $mvcComponentType Could be between 'model', 'view' or 'controller'.
-     * @param string $routeType         Could be 'admin' or 'frontend'.
+     * @param string $routeType        Could be 'admin' or 'frontend'.
      *
      * @return string Retuns Full Qualified Class Name.
      */
@@ -211,7 +212,7 @@ class Router
             if (isset($this->app) and !empty($this->app)) {
                 $fqcn = $this->app . '\\App\\';
             } else {
-                throw new \Exception('Please setApp in routes.php');
+                throw new Exception('Please setApp in routes.php');
             }
 
             $fqcn .= ucfirst($mvcComponentType) . 's\\';
