@@ -13,14 +13,14 @@ use function ob_start;
  *
  * @author Sławomir Kaleta <slaszka@gmail.com>
  */
-class View
+class View extends \Dframe\View
 {
     /**
      * @var array
      */
     private $config;
 
-    public function __construct(array $config = [])
+    public function init(array $config = [])
     {
         $this->config = $config;
     }
