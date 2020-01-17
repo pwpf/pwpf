@@ -2,11 +2,8 @@
 
 namespace PWPF\Routing;
 
-use Exception;
-use PWPF\Routing\RouteType as RouteType;
 
-use function strpos;
-use function ucfirst;
+use Dframe\Loader\Exceptions\LoaderException;
 
 /**
  * Class Responsible for registering Routes
@@ -317,18 +314,33 @@ class Router
             if (is_callable($mvcComponent['view'])) {
                 $mvcComponent['view'] = call_user_func($mvcComponent['view']);
             }
-
-            $view = $this->getFullyQualifiedClassName($mvcComponent['view'], 'view', $routeType);
         }
 
+        if (!defined('APP_DIR')) {
+            define('APP_DIR', '../../../../app');
+        }
+
+        if (!defined('SALT')) {
+            define('SALT', 'SALT');
+        }
+
+        try {
+            $Loader = new \Dframe\Loader(new \stdClass());
+        } catch (LoaderException $e) {
+            die($e->getMessage());
+        }
 
         @list($controller, $action) = explode('@', $mvcComponent['controller']);
+        $Controller = $Loader->loadController($controller, '\\');
+        if (method_exists($Controller, 'start')) {
+            $Controller->start();
+        }
+        if (method_exists($Controller, 'init')) {
+            $Controller->init();
+        }
 
-        $controller = $this->getFullyQualifiedClassName($controller, 'controller', $routeType);
-        $controllerInstance = $controller::getInstance($model, $view);
-
-        if (null !== $action) {
-            $controllerInstance->$action();
+        if ($action !== null) {
+            return $Controller->{$action}();
         }
     }
 

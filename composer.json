@@ -10,5 +10,7 @@
             "email": "slaszka@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+        "dframe/dframe": "dev-master"
+    }
 }
