@@ -33,6 +33,9 @@ class Router
      */
     private static $mvcComponents = [];
 
+    /**
+     * @var string
+     */
     public $routeTypeToRegister;
 
     /**
@@ -42,7 +45,6 @@ class Router
 
     /**
      * Constructor
-     *
      */
     public function __construct()
     {
@@ -223,6 +225,11 @@ class Router
         return $class;
     }
 
+    /**
+     * @param $app
+     *
+     * @return $this
+     */
     public function setApp($app)
     {
         $this->app = $app;

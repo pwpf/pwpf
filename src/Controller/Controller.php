@@ -9,5 +9,4 @@ namespace PWPF\Controller;
  */
 abstract class Controller extends \Dframe\Controller
 {
-
 }
