@@ -93,10 +93,10 @@ class View extends \Dframe\View
     public function locateTemplate($templateName, $templatePath = '', $defaultPath = '')
     {
         if (!$templatePath) {
-            $templatePath = 'templates/';
+            $templatePath = 'Templates/';
         }
         if (!$defaultPath) {
-            $defaultPath = plugin_dir_path(__FILE__) . '../../../../app/templates/';
+            $defaultPath = plugin_dir_path(__FILE__) . '../../../../app/Templates/';
         }
         // Look within passed path within the theme - this is priority.
         $template = locate_template([trailingslashit($templatePath) . $templateName, $templateName]);
