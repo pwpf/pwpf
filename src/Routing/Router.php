@@ -211,7 +211,7 @@ class Router
             if (isset($this->app) and !empty($this->app)) {
                 $fqcn = $this->app . '\\App\\';
             } else {
-                throw new Exception('Please setApp in routes.php');
+                throw new \Exception('Please setApp in routes.php');
             }
 
             $fqcn .= ucfirst($mvcComponentType) . 's\\';
