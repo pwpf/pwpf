@@ -324,7 +324,7 @@ class Router
         }
 
         if (!defined('APP_DIR')) {
-            define('APP_DIR', '../../../../app');
+            define('APP_DIR', '../../../../app/');
         }
 
         if (!defined('SALT')) {
