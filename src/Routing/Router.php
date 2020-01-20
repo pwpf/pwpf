@@ -20,13 +20,6 @@ class Router
     public const REGISTER_LATE_FRONTEND_ROUTES = true;
 
     /**
-     * Holds List of Models used for 'Model Only' Routes
-     *
-     * @var array
-     */
-    private static $models = [];
-
-    /**
      * Holds Model, View & Controllers triad for All routes except 'Model Only' Routes
      *
      * @var array
@@ -56,48 +49,10 @@ class Router
      */
     protected function registerHookCallbacks()
     {
-        add_action('init', [$this, 'registerGenericModelOnlyRoutes']);
-        add_action('wp', [$this, 'registerLateFrontendModelOnlyRoutes']);
-
         add_action('init', [$this, 'registerGenericRoutes']);
         add_action('wp', [$this, 'registerLateFrontendRoutes']);
     }
 
-    /**
-     * Register Generic `Model Only` Routes
-     *
-     * @return void
-     */
-    public function registerGenericModelOnlyRoutes()
-    {
-        $this->registerModelOnlyRoutes();
-    }
-
-    /**
-     * Registers `Model Only` Enqueued Routes
-     *
-     * @param bool $registerLateFrontendRoutes Whether to register late frontend routes.
-     *
-     * @return void
-     */
-    public function registerModelOnlyRoutes($registerLateFrontendRoutes = false)
-    {
-        if ($registerLateFrontendRoutes && empty(
-            $routeTypes = $this->lateFrontendRouteTypes()
-            )) { // @codingStandardsIgnoreLine.
-            return;
-        } elseif (empty($routeTypes = $this->genericRouteTypes())) { // @codingStandardsIgnoreLine.
-            return;
-        }
-
-        foreach ($routeTypes as $routeType) {
-            if ($this->isRequest($routeType) && !empty(static::$models[$routeType])) {
-                foreach (static::$models[$routeType] as $model) {
-                    $this->dispatchOnlyModel($model, $routeType);
-                }
-            }
-        }
-    }
 
     /**
      * Returns list of Route types belonging to Frontend but registered late
@@ -165,37 +120,6 @@ class Router
     }
 
     /**
-     * Dispatches the model only route by creating a Model object
-     *
-     * @param mixed  $model     Model to be associated with the Route. Could be String or callback.
-     * @param string $routeType Route Type.
-     *
-     * @return void
-     */
-    private function dispatchOnlyModel($model, $routeType)
-    {
-        if (false === $model) {
-            return;
-        }
-
-        if (is_callable($model)) {
-            $model = call_user_func($model);
-
-            if (false === $model) {
-                return;
-            }
-        }
-
-        @list($model, $action) = explode('@', $model);
-        $model = $this->getFullyQualifiedClassName($model, 'model', $routeType);
-        $modelInstance = $model::getInstance();
-
-        if (null !== $action) {
-            $modelInstance->$action();
-        }
-    }
-
-    /**
      * Returns the Full Qualified Class Name for given class name
      *
      * @param string $class            Class whose FQCN needs to be found out.
@@ -234,16 +158,6 @@ class Router
     {
         $this->app = $app;
         return $this;
-    }
-
-    /**
-     * Register Late Frontend `Model Only` Routes
-     *
-     * @return void
-     */
-    public function registerLateFrontendModelOnlyRoutes()
-    {
-        $this->registerModelOnlyRoutes(self::REGISTER_LATE_FRONTEND_ROUTES);
     }
 
     /**
@@ -294,35 +208,6 @@ class Router
      */
     private function dispatch($mvcComponent, $routeType)
     {
-        $model = false;
-        $view = false;
-
-        if (isset($mvcComponent['controller']) && false === $mvcComponent['controller']) {
-            return;
-        }
-
-        if (is_callable($mvcComponent['controller'])) {
-            $mvcComponent['controller'] = call_user_func($mvcComponent['controller']);
-
-            if (false === $mvcComponent['controller']) {
-                return;
-            }
-        }
-
-        if (isset($mvcComponent['model']) && false !== $mvcComponent['model']) {
-            if (is_callable($mvcComponent['model'])) {
-                $mvcComponent['model'] = call_user_func($mvcComponent['model']);
-            }
-
-            $model = $this->getFullyQualifiedClassName($mvcComponent['model'], 'model', $routeType);
-        }
-
-        if (isset($mvcComponent['view']) && false !== $mvcComponent['view']) {
-            if (is_callable($mvcComponent['view'])) {
-                $mvcComponent['view'] = call_user_func($mvcComponent['view']);
-            }
-        }
-
         if (!defined('APP_DIR')) {
             define('APP_DIR', '../../../../app/');
         }
@@ -331,9 +216,15 @@ class Router
             define('SALT', 'SALT');
         }
 
+        if (isset($mvcComponent['controller']) && false === $mvcComponent['controller']) {
+            return;
+        }
+
         try {
             $Loader = new \Dframe\Loader(new \stdClass());
         } catch (LoaderException $e) {
+            die($e->getMessage());
+        } catch (\Exception $e) {
             die($e->getMessage());
         }
 
@@ -396,21 +287,6 @@ class Router
     }
 
     /**
-     * Enqueues a model to be associated with the Model only` Route
-     *
-     * @param mixed $model Model to be associated with the Route. Could be String or callback.
-     *
-     * @return mixed
-     */
-    public function withJustModel($model)
-    {
-        if (false === $model) {
-            return $this;
-        }
-        static::$models[$this->routeTypeToRegister][] = $model;
-    }
-
-    /**
      * Enqueues a controller to be associated with the Route
      *
      * @param mixed $controller Controller to be associated with the Route. Could be String or callback.
@@ -467,35 +343,4 @@ class Router
         }
     }
 
-    /**
-     * Enqueues a model to be associated with the Route
-     *
-     * The object of this model is passed to controller.
-     *
-     * @param mixed $model Model to be associated with the Route. Could be String or callback.
-     *
-     * @return object Returns Router Object
-     */
-    public function withModel($model)
-    {
-        if (isset(static::$mvcComponents[$this->routeTypeToRegister][$this->currentController]['controller'])) {
-            static::$mvcComponents[$this->routeTypeToRegister][$this->currentController]['model'] = $model;
-        }
-        return $this;
-    }
-
-    /**
-     * Registers view with the Route. The object of this view is passed to controller
-     *
-     * @param mixed $view View to be associated with the Route. Could be String or callback.
-     *
-     * @return object Returns Router Object
-     */
-    public function withView($view)
-    {
-        if (isset(static::$mvcComponents[$this->routeTypeToRegister][$this->currentController]['controller'])) {
-            static::$mvcComponents[$this->routeTypeToRegister][$this->currentController]['view'] = $view;
-        }
-        return $this;
-    }
 }
