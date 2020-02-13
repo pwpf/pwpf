@@ -216,7 +216,7 @@ class Router
             define('SALT', 'SALT');
         }
 
-        if (isset($mvcComponent['controller']) && false === $mvcComponent['controller']) {
+        if (isset($mvcComponent['controller']) && !is_string($mvcComponent['controller'])) {
             return;
         }
 
@@ -230,9 +230,11 @@ class Router
 
         @list($controller, $action) = explode('@', $mvcComponent['controller']);
         $Controller = $Loader->loadController($controller, '\\');
+        
         if (method_exists($Controller, 'start')) {
             $Controller->start();
         }
+        
         if (method_exists($Controller, 'init')) {
             $Controller->init();
         }
