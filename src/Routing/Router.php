@@ -229,18 +229,18 @@ class Router
         }
 
         @list($controller, $action) = explode('@', $mvcComponent['controller']);
-        if ($controller
-            $Controller = $Loader->loadController($controller, '\\');
-            if (method_exists($Controller, 'start')) {
-                $Controller->start();
-            }
-            if (method_exists($Controller, 'init')) {
-                $Controller->init();
-            }
+        $Controller = $Loader->loadController($controller, '\\');
+        
+        if (method_exists($Controller, 'start')) {
+            $Controller->start();
+        }
+        
+        if (method_exists($Controller, 'init')) {
+            $Controller->init();
+        }
 
-            if ($action !== null) {
-                return $Controller->{$action}();
-            }
+        if ($action !== null) {
+            return $Controller->{$action}();
         }
     }
 
