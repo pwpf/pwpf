@@ -216,13 +216,14 @@ class Router
             define('SALT', 'SALT');
         }
 
-        if ( isset( $mvcComponent['controller'] ) && false === $mvcComponent['controller'] ) {
+        if (isset($mvcComponent['controller']) && false === $mvcComponent['controller']) {
             return;
         }
-        if ( is_callable( $mvcComponent['controller'] ) ) {
-            $mvcComponent['controller'] = call_user_func( $mvcComponent['controller'] );
-            if ( false === $mvcComponent['controller'] ) {
+        if (is_callable($mvcComponent['controller'])) {
+            $mvcComponent['controller'] = call_user_func($mvcComponent['controller']);
+            if (false === $mvcComponent['controller']) {
                 return;
+            }
         }
 
 
