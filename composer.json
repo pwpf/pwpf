@@ -11,6 +11,6 @@
         }
     ],
     "require": {
-        "dframe/dframe": "dev-master"
+        "dframe/dframe": "^4.0"
     }
 }
