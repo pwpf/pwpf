@@ -1,3 +1,7 @@
+# PWPF - Plugin WordPress Framework 
+[![Latest Stable Version](https://poser.pugx.org/pwpf/pwpf/v/stable)](https://packagist.org/packages/pwpf/pwpf) [![Total Downloads](https://poser.pugx.org/pwpf/pwpf/downloads)](https://packagist.org/packages/pwpf/pwpf) [![Latest Unstable Version](https://poser.pugx.org/pwpf/pwpf/v/unstable)](https://packagist.org/packages/pwpf/pwpf) [![License](https://poser.pugx.org/pwpf/pwpf/license)](https://packagist.org/packages/pwpf/pwpf)
+
+
 API Index
 =========
 
