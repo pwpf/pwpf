@@ -53,6 +53,54 @@ class Router
         add_action('wp', [$this, 'registerLateFrontendRoutes']);
     }
 
+    /**
+     * @param $app
+     *
+     * @return $this
+     */
+    public function setApp($app)
+    {
+        $this->app = $app;
+        return $this;
+    }
+
+    /**
+     * Register Generic Routes
+     *
+     * @return void
+     */
+    public function registerGenericRoutes()
+    {
+        $this->registerRoutes();
+    }
+
+    /**
+     * Registers Enqueued Routes
+     *
+     * @param bool $registerLateFrontendRoutes Whether to register late frontend routes.
+     *
+     * @return void
+     */
+    private function registerRoutes($registerLateFrontendRoutes = false)
+    {
+        if ($registerLateFrontendRoutes) {
+            $routeTypes = $this->lateFrontendRouteTypes();
+        } else {
+            $routeTypes = $this->genericRouteTypes();
+        }
+
+        if (empty($routeTypes)) {
+            return;
+        }
+
+        foreach ($routeTypes as $routeType) {
+            if ($this->isRequest($routeType) && !empty(static::$mvcComponents[$routeType])) {
+                foreach (static::$mvcComponents[$routeType] as $mvcComponent) {
+                    $this->dispatch($mvcComponent, $routeType);
+                }
+            }
+        }
+    }
 
     /**
      * Returns list of Route types belonging to Frontend but registered late
@@ -120,85 +168,6 @@ class Router
     }
 
     /**
-     * Returns the Full Qualified Class Name for given class name
-     *
-     * @param string $class            Class whose FQCN needs to be found out.
-     * @param string $mvcComponentType Could be between 'model', 'view' or 'controller'.
-     * @param string $routeType        Could be 'admin' or 'frontend'.
-     *
-     * @return string Retuns Full Qualified Class Name.
-     */
-    private function getFullyQualifiedClassName($class, $mvcComponentType, $routeType)
-    {
-        // If route type is admin or frontend.
-        if (strpos($routeType, 'admin') !== false || strpos($routeType, 'frontend') !== false) {
-            if (isset($this->app) and !empty($this->app)) {
-                $fqcn = $this->app . '\\App\\';
-            } else {
-                throw new \Exception('Please setApp in routes.php');
-            }
-
-            $fqcn .= ucfirst($mvcComponentType) . 's\\';
-            $fqcn .= strpos($routeType, 'admin') !== false ? 'Admin\\' : 'Frontend\\';
-
-            if (class_exists($fqcn . $class)) {
-                return $fqcn . $class;
-            }
-        }
-
-        return $class;
-    }
-
-    /**
-     * @param $app
-     *
-     * @return $this
-     */
-    public function setApp($app)
-    {
-        $this->app = $app;
-        return $this;
-    }
-
-    /**
-     * Register Generic Routes
-     *
-     * @return void
-     */
-    public function registerGenericRoutes()
-    {
-        $this->registerRoutes();
-    }
-
-    /**
-     * Registers Enqueued Routes
-     *
-     * @param bool $registerLateFrontendRoutes Whether to register late frontend routes.
-     *
-     * @return void
-     */
-    private function registerRoutes($registerLateFrontendRoutes = false)
-    {
-        if ($registerLateFrontendRoutes) {
-            $routeTypes = $this->lateFrontendRouteTypes();
-        } else {
-            $routeTypes = $this->genericRouteTypes();
-        }
-
-        if (empty($routeTypes)) {
-            return;
-        }
-
-        foreach ($routeTypes as $routeType) {
-            if ($this->isRequest($routeType) && !empty(static::$mvcComponents[$routeType])) {
-                foreach (static::$mvcComponents[$routeType] as $mvcComponent) {
-                    $this->dispatch($mvcComponent, $routeType);
-                }
-            }
-        }
-    }
-
-    /**
      * Dispatches the route of specified $routeType by creating a controller object
      *
      * @param array  $mvcComponent Model-View-Controller triads for all registered routes.
@@ -236,11 +205,11 @@ class Router
 
         @list($controller, $action) = explode('@', $mvcComponent['controller']);
         $Controller = $Loader->loadController($controller, '\\');
-        
+
         if (method_exists($Controller, 'start')) {
             $Controller->start();
         }
-        
+
         if (method_exists($Controller, 'init')) {
             $Controller->init();
         }
@@ -349,6 +318,36 @@ class Router
             // Static Calling.
             return $prefix . $controller[0] . '::' . $controller[1];
         }
+    }
+
+    /**
+     * Returns the Full Qualified Class Name for given class name
+     *
+     * @param string $class            Class whose FQCN needs to be found out.
+     * @param string $mvcComponentType Could be between 'model', 'view' or 'controller'.
+     * @param string $routeType        Could be 'admin' or 'frontend'.
+     *
+     * @return string Retuns Full Qualified Class Name.
+     */
+    private function getFullyQualifiedClassName($class, $mvcComponentType, $routeType)
+    {
+        // If route type is admin or frontend.
+        if (strpos($routeType, 'admin') !== false || strpos($routeType, 'frontend') !== false) {
+            if (isset($this->app) and !empty($this->app)) {
+                $fqcn = $this->app . '\\App\\';
+            } else {
+                throw new \Exception('Please setApp in routes.php');
+            }
+
+            $fqcn .= ucfirst($mvcComponentType) . 's\\';
+            $fqcn .= strpos($routeType, 'admin') !== false ? 'Admin\\' : 'Frontend\\';
+
+            if (class_exists($fqcn . $class)) {
+                return $fqcn . $class;
+            }
+        }
+
+        return $class;
     }
 
 }
