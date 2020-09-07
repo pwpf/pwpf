@@ -4,6 +4,8 @@ namespace PWPF\Routing;
 
 
 use Dframe\Loader\Exceptions\LoaderException;
+use Dframe\Loader\Loader;
+use Exception;
 
 /**
  * Class Responsible for registering Routes
@@ -24,7 +26,7 @@ class Router
      *
      * @var array
      */
-    private static $mvcComponents = [];
+    protected static $mvcComponents = [];
 
     /**
      * @var string
@@ -81,7 +83,7 @@ class Router
      *
      * @return void
      */
-    private function registerRoutes($registerLateFrontendRoutes = false)
+    protected function registerRoutes($registerLateFrontendRoutes = false)
     {
         if ($registerLateFrontendRoutes) {
             $routeTypes = $this->lateFrontendRouteTypes();
@@ -144,9 +146,9 @@ class Router
      *
      * @param string $routeType Route Type to identify.
      *
-     * @return bool
+     * @return bool|void
      */
-    private function isRequest($routeType)
+    protected function isRequest($routeType)
     {
         switch ($routeType) {
             case RouteType::ANY:
@@ -175,7 +177,7 @@ class Router
      *
      * @return void
      */
-    private function dispatch($mvcComponent, $routeType)
+    protected function dispatch($mvcComponent, $routeType)
     {
         if (!defined('APP_DIR')) {
             define('APP_DIR', '../../../../app/');
@@ -196,10 +198,10 @@ class Router
         }
 
         try {
-            $Loader = new \Dframe\Loader\Loader(new \stdClass());
+            $Loader = new Loader(new \stdClass());
         } catch (LoaderException $e) {
             die($e->getMessage());
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             die($e->getMessage());
         }
 
@@ -292,7 +294,7 @@ class Router
      *
      * @param mixed $controller Controller to be associated with the Route. Could be String or callback.
      *
-     * @return string
+     * @return string|void
      */
     public function buildControllerUniqueId($controller)
     {
@@ -328,15 +330,16 @@ class Router
      * @param string $routeType        Could be 'admin' or 'frontend'.
      *
      * @return string Retuns Full Qualified Class Name.
+     * @throws Exception
      */
-    private function getFullyQualifiedClassName($class, $mvcComponentType, $routeType)
+    protected function getFullyQualifiedClassName($class, $mvcComponentType, $routeType)
     {
         // If route type is admin or frontend.
         if (strpos($routeType, 'admin') !== false || strpos($routeType, 'frontend') !== false) {
             if (isset($this->app) and !empty($this->app)) {
                 $fqcn = $this->app . '\\App\\';
             } else {
-                throw new \Exception('Please setApp in routes.php');
+                throw new Exception('Please setApp in routes.php');
             }
 
             $fqcn .= ucfirst($mvcComponentType) . 's\\';

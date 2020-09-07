@@ -23,7 +23,7 @@ if (!class_exists(__NAMESPACE__ . '\\' . 'Controller')) {
          *
          * @return string
          */
-        public static function getKey($controller_class_name, $model_class_name, $view_class_name)
+        public static function getKey(string $controller_class_name, string $model_class_name, string $view_class_name)
         {
             return "{$controller_class_name}__{$model_class_name}__{$view_class_name}";
         }

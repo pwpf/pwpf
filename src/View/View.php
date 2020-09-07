@@ -39,8 +39,7 @@ class View extends \Dframe\View\View
      */
     public function render($templateName, $args = [], $templatePath = '', $defaultPath = '')
     {
-        $result = $this->renderTemplate($templateName, $args, $templatePath, $defaultPath);
-        return $result;
+        return $this->renderTemplate($templateName, $args, $templatePath, $defaultPath);;
     }
 
     /**

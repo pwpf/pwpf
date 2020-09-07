@@ -34,7 +34,7 @@ if (!trait_exists('Base_Registry')) {
          *
          * @return void
          */
-        public static function set($key, $value)
+        public static function set(string $key, $value)
         {
             if (!is_string($key)) {
                 trigger_error(
@@ -52,7 +52,7 @@ if (!trait_exists('Base_Registry')) {
          *
          * @return mixed
          */
-        public static function get($key)
+        public static function get(string $key)
         {
             if (!is_string($key)) {
                 trigger_error(
