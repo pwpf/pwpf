@@ -226,9 +226,8 @@ class Router
             }
         }
 
-
         try {
-            $Loader = new \Dframe\Loader(new \stdClass());
+            $Loader = new \Dframe\Loader\Loader(new \stdClass());
         } catch (LoaderException $e) {
             die($e->getMessage());
         } catch (\Exception $e) {

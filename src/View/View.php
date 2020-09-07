@@ -13,7 +13,7 @@ use function ob_start;
  *
  * @author Sławomir Kaleta <slaszka@gmail.com>
  */
-class View extends \Dframe\View
+class View extends \Dframe\View\View
 {
     /**
      * @var array

@@ -11,6 +11,6 @@
         }
     ],
     "require": {
-        "dframe/dframe": "^4.0"
+        "dframe/dframe": "^4.1"
     }
 }
