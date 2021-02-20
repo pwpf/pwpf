@@ -41,8 +41,9 @@ class Router
     /**
      * Constructor
      */
-    public function __construct()
+    public function __construct($boostrap = false)
     {
+        $this->boostrap = $boostrap;
         $this->registerHookCallbacks();
     }
 
@@ -198,7 +199,8 @@ class Router
         }
 
         try {
-            $Loader = new Loader(new \stdClass());
+            $boostrap = new $this->boostrap;
+            $Loader = new Loader($boostrap);
         } catch (LoaderException $e) {
             die($e->getMessage());
         } catch (Exception $e) {
@@ -308,7 +310,7 @@ class Router
             // Closures are currently implemented as objects.
             $controller = [$controller, ''];
         } else {
-            $controller = (array)$controller;
+            $controller = (array) $controller;
         }
 
         if (is_object($controller[0])) {
