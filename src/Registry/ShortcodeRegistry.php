@@ -1,19 +1,19 @@
 <?php
 
-namespace PWPF\Routing;
+namespace PWPF\Registry;
 
 use Dframe\Loader\Exceptions\LoaderException;
 use Dframe\Loader\Loader;
 use Exception;
+use PWPF\Routing\RouteType;
 
 /**
  * Class Responsible for registering Routes
  *
  * @author Sławomir Kaleta <slaszka@gmail.com>
  */
-class Router
+class ShortcodeRegistry
 {
-
     /**
      * This constant is used to register late frontend routes
      *
@@ -27,10 +27,7 @@ class Router
      */
     protected static $mvcComponents = [];
 
-    /**
-     * @var Loader
-     */
-    protected static $loader;
+    protected static Loader $loader;
 
     /**
      * @var string
@@ -40,7 +37,7 @@ class Router
     /**
      * @var string
      */
-    public $currentController;
+    public $currentShortcode;
 
     /**
      * Constructor
@@ -95,11 +92,9 @@ class Router
         } else {
             $routeTypes = $this->genericRouteTypes();
         }
-
         if (empty($routeTypes)) {
             return;
         }
-
         foreach ($routeTypes as $routeType) {
             if ($this->isRequest($routeType) && !empty(static::$mvcComponents[$routeType])) {
                 foreach (static::$mvcComponents[$routeType] as $mvcComponent) {
@@ -118,10 +113,7 @@ class Router
     {
         return apply_filters(
             'pwpf_late_frontend_route_types',
-            [
-                RouteType::LATE_FRONTEND,
-                RouteType::LATE_FRONTEND_WITH_POSSIBLE_AJAX,
-            ]
+            [RouteType::LATE_FRONTEND, RouteType::LATE_FRONTEND_WITH_POSSIBLE_AJAX]
         );
     }
 
@@ -141,7 +133,7 @@ class Router
                 RouteType::AJAX,
                 RouteType::CRON,
                 RouteType::FRONTEND,
-                RouteType::FRONTEND_WITH_POSSIBLE_AJAX,
+                RouteType::FRONTEND_WITH_POSSIBLE_AJAX
             ]
         );
     }
@@ -170,7 +162,7 @@ class Router
                 return (!is_admin() || defined('DOING_AJAX')) && !defined('DOING_CRON') && !defined('REST_REQUEST');
             case RouteType::LATE_FRONTEND:
             case RouteType::LATE_FRONTEND_WITH_POSSIBLE_AJAX:
-                return $this->isRequest('frontend') || (current_action() == 'wp') || (did_action('wp') === 1);
+                return $this->isRequest('frontend') || current_action() == 'wp' || did_action('wp') === 1;
         }
     }
 
@@ -187,17 +179,15 @@ class Router
         if (!defined('APP_DIR')) {
             define('APP_DIR', '../../../../app/');
         }
-
         if (!defined('SALT')) {
             define('SALT', 'SALT');
         }
-
-        if (isset($mvcComponent['controller']) && false === $mvcComponent['controller']) {
+        if (isset($mvcComponent['shortcode']) && false === $mvcComponent['shortcode']) {
             return;
         }
-        if (is_callable($mvcComponent['controller'])) {
-            $mvcComponent['controller'] = call_user_func($mvcComponent['controller']);
-            if (false === $mvcComponent['controller']) {
+        if (is_callable($mvcComponent['shortcode'])) {
+            $mvcComponent['shortcode'] = call_user_func($mvcComponent['shortcode']);
+            if (false === $mvcComponent['shortcode']) {
                 return;
             }
         }
@@ -207,26 +197,24 @@ class Router
                 self::$loader = new Loader($boostrap);
             }
 
-            $Loader = self::$loader;
+            $loader = self::$loader;
         } catch (LoaderException $e) {
             die($e->getMessage());
         } catch (Exception $e) {
             die($e->getMessage());
         }
 
-        @list($controller, $action) = explode('@', $mvcComponent['controller']);
-        $Controller = $Loader->loadController($controller, '\\');
+        @(list($shortcode, $action) = explode('@', $mvcComponent['shortcode']));
+        $loadShortcode = $loader->loadController($shortcode, '\\');
 
-        if (method_exists($Controller, 'start')) {
-            $Controller->start();
+        if (method_exists($loadShortcode, 'start')) {
+            $loadShortcode->start();
         }
-
-        if (method_exists($Controller, 'init')) {
-            $Controller->init();
+        if (method_exists($loadShortcode, 'init')) {
+            $loadShortcode->init();
         }
-
         if ($action !== null) {
-            return $Controller->{$action}();
+            return $loadShortcode->{$action}();
         }
     }
 
@@ -246,7 +234,7 @@ class Router
      *
      * @param string $type Type of route to be registered.
      *
-     * @return Router Returns `Router` object.
+     * @return ShortcodeRegistry Returns `Router` object.
      */
     public function registerRouteOfType($type)
     {
@@ -257,9 +245,9 @@ class Router
                     'PLUGIN'
                 ),
                 E_USER_ERROR
-            ); // @codingStandardsIgnoreLine.
+            );
+            // @codingStandardsIgnoreLine.
         }
-
         if (in_array($type, $this->genericRouteTypes()) && did_action('init')) {
             trigger_error(
                 __(
@@ -267,31 +255,13 @@ class Router
                     'PLUGIN'
                 ),
                 E_USER_ERROR
-            ); // @codingStandardsIgnoreLine.
+            );
+            // @codingStandardsIgnoreLine.
         }
-
         $this->routeTypeToRegister = $type;
         return $this;
     }
 
-    /**
-     * Enqueues a controller to be associated with the Route
-     *
-     * @param mixed $controller Controller to be associated with the Route. Could be String or callback.
-     *
-     * @return object Returns Router Object
-     */
-    public function withController($controller)
-    {
-        if (false === $controller) {
-            return $this;
-        }
-
-        $this->currentController = $this->buildControllerUniqueId($controller);
-        static::$mvcComponents[$this->routeTypeToRegister][$this->currentController] = ['controller' => $controller];
-
-        return $this;
-    }
 
     /**
      * Enqueues a controller to be associated with the Route
@@ -306,8 +276,8 @@ class Router
             return $this;
         }
 
-        $this->currentController = $this->buildControllerUniqueId($shortcode);
-        static::$mvcComponents[$this->routeTypeToRegister][$this->currentController] = ['controller' => $shortcode];
+        $this->currentShortcode = $this->buildShortcodeUniqueId($shortcode);
+        static::$mvcComponents[$this->routeTypeToRegister][$this->currentShortcode] = ['shortcode' => $shortcode];
         return $this;
     }
 
@@ -318,33 +288,29 @@ class Router
      * is used while enqueueing models and views to associate them with the
      * controller.
      *
-     * @param mixed $controller Controller to be associated with the Route. Could be String or callback.
+     * @param mixed $shortcode Controller to be associated with the Route. Could be String or callback.
      *
      * @return string|void
      */
-    public function buildControllerUniqueId($controller)
+    public function buildShortcodeUniqueId($shortcode)
     {
         $prefix = mt_rand() . '_';
-
-        if (is_string($controller)) {
-            return $prefix . $controller;
+        if (is_string($shortcode)) {
+            return $prefix . $shortcode;
         }
-
-        if (is_object($controller)) {
+        if (is_object($shortcode)) {
             // Closures are currently implemented as objects.
-            $controller = [$controller, ''];
+            $shortcode = [$shortcode, ''];
         } else {
-            $controller = (array)$controller;
+            $shortcode = (array)$shortcode;
         }
-
-        if (is_object($controller[0])) {
+        if (is_object($shortcode[0])) {
             // Object Class Calling.
-            return $prefix . spl_object_hash($controller[0]) . $controller[1];
+            return $prefix . spl_object_hash($shortcode[0]) . $shortcode[1];
         }
-
-        if (is_string($controller[0])) {
+        if (is_string($shortcode[0])) {
             // Static Calling.
-            return $prefix . $controller[0] . '::' . $controller[1];
+            return $prefix . $shortcode[0] . '::' . $shortcode[1];
         }
     }
 
@@ -352,7 +318,7 @@ class Router
      * Returns the Full Qualified Class Name for given class name
      *
      * @param string $class Class whose FQCN needs to be found out.
-     * @param string $mvcComponentType Could be between 'model', 'view' or 'controller'.
+     * @param string $mvcComponentType Could be between 'model', 'view' or 'shortcode'.
      * @param string $routeType Could be 'admin' or 'frontend'.
      *
      * @return string Retuns Full Qualified Class Name.
@@ -367,15 +333,12 @@ class Router
             } else {
                 throw new Exception('Please setApp in routes.php');
             }
-
             $fqcn .= ucfirst($mvcComponentType) . 's\\';
             $fqcn .= strpos($routeType, 'admin') !== false ? 'Admin\\' : 'Frontend\\';
-
             if (class_exists($fqcn . $class)) {
                 return $fqcn . $class;
             }
         }
-
         return $class;
     }
 }
