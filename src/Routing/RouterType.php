@@ -17,7 +17,7 @@ class RouteType
      * This route type is registered on `init` hook.
      *
      */
-    const ANY = 'any';
+    public const ANY = 'any';
 
     /**
      * Use this route type if a controller/model needs to be loaded only on
@@ -26,7 +26,7 @@ class RouteType
      * This route type is registered on `init` hook.
      *
      */
-    const ADMIN = 'admin';
+    public const ADMIN = 'admin';
 
     /**
      * Use this route type if a controller/model needs to be loaded only on
@@ -35,7 +35,7 @@ class RouteType
      * This route type is registered on `init` hook.
      *
      */
-    const ADMIN_WITH_POSSIBLE_AJAX = 'admin_with_possible_ajax';
+    public const ADMIN_WITH_POSSIBLE_AJAX = 'admin_with_possible_ajax';
 
     /**
      * Use this route type if a controller/model needs to be loaded only on
@@ -44,7 +44,7 @@ class RouteType
      * This route type is registered on `init` hook.
      *
      */
-    const AJAX = 'ajax';
+    public const AJAX = 'ajax';
 
     /**
      * Use this route type if a controller/model needs to be loaded only on
@@ -53,7 +53,7 @@ class RouteType
      * This route type is registered on `init` hook.
      *
      */
-    const CRON = 'cron';
+    public const CRON = 'cron';
 
     /**
      * Use this route type if a controller/model needs to be loaded only on
@@ -62,7 +62,7 @@ class RouteType
      * This route type is registered on `init` hook.
      *
      */
-    const FRONTEND = 'frontend';
+    public const FRONTEND = 'frontend';
 
     /**
      * Use this route type if a controller/model needs to be loaded only on
@@ -71,7 +71,7 @@ class RouteType
      * This route type is registered on `init` hook.
      *
      */
-    const FRONTEND_WITH_POSSIBLE_AJAX = 'frontend_with_possible_ajax';
+    public const FRONTEND_WITH_POSSIBLE_AJAX = 'frontend_with_possible_ajax';
 
     /**
      * Use this route type if a controller/model needs to be loaded only on
@@ -104,7 +104,7 @@ class RouteType
      * </code>
      *
      */
-    const LATE_FRONTEND = 'late_frontend';
+    public const LATE_FRONTEND = 'late_frontend';
 
     /**
      * Use this route type if a controller/model needs to be loaded only on
@@ -138,6 +138,6 @@ class RouteType
      * </code>
      *
      */
-    const LATE_FRONTEND_WITH_POSSIBLE_AJAX = 'late_frontend_with_possible_ajax';
+    public const LATE_FRONTEND_WITH_POSSIBLE_AJAX = 'late_frontend_with_possible_ajax';
 
 }

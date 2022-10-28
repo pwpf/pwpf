@@ -177,8 +177,8 @@ class Router
     /**
      * Dispatches the route of specified $routeType by creating a controller object
      *
-     * @param array $mvcComponent Model-View-Controller triads for all registered routes.
-     * @param string $routeType Route Type.
+     * @param array  $mvcComponent Model-View-Controller triads for all registered routes.
+     * @param string $routeType    Route Type.
      *
      * @return void
      */
@@ -294,24 +294,6 @@ class Router
     }
 
     /**
-     * Enqueues a controller to be associated with the Route
-     *
-     * @param mixed $shortcode Controller to be associated with the Route. Could be String or callback.
-     *
-     * @return object Returns Router Object
-     */
-    public function withShortcode($shortcode)
-    {
-        if ($shortcode === false) {
-            return $this;
-        }
-
-        $this->currentController = $this->buildControllerUniqueId($shortcode);
-        static::$mvcComponents[$this->routeTypeToRegister][$this->currentController] = ['controller' => $shortcode];
-        return $this;
-    }
-
-    /**
      * Generates a Unique id for each controller
      *
      * This unique id is used as an array key inside mvc_components array which
@@ -349,11 +331,29 @@ class Router
     }
 
     /**
+     * Enqueues a controller to be associated with the Route
+     *
+     * @param mixed $shortcode Controller to be associated with the Route. Could be String or callback.
+     *
+     * @return object Returns Router Object
+     */
+    public function withShortcode($shortcode)
+    {
+        if ($shortcode === false) {
+            return $this;
+        }
+
+        $this->currentController = $this->buildControllerUniqueId($shortcode);
+        static::$mvcComponents[$this->routeTypeToRegister][$this->currentController] = ['controller' => $shortcode];
+        return $this;
+    }
+
+    /**
      * Returns the Full Qualified Class Name for given class name
      *
-     * @param string $class Class whose FQCN needs to be found out.
+     * @param string $class            Class whose FQCN needs to be found out.
      * @param string $mvcComponentType Could be between 'model', 'view' or 'controller'.
-     * @param string $routeType Could be 'admin' or 'frontend'.
+     * @param string $routeType        Could be 'admin' or 'frontend'.
      *
      * @return string Retuns Full Qualified Class Name.
      * @throws Exception
