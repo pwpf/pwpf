@@ -41,6 +41,14 @@ class Router
      * @var string
      */
     public $currentController;
+    /**
+     * @var false|mixed
+     */
+    public $boostrap;
+    /**
+     * @var
+     */
+    public $app;
 
     /**
      * Constructor

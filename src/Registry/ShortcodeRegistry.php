@@ -38,6 +38,14 @@ class ShortcodeRegistry
      * @var string
      */
     public $currentShortcode;
+    /**
+     * @var false|mixed
+     */
+    public $boostrap;
+    /**
+     * @var
+     */
+    public $app;
 
     /**
      * Constructor
