@@ -29,8 +29,8 @@ if (!trait_exists('Base_Registry')) {
         /**
          * Add object to registry
          *
-         * @param string $key   Key to be used to map with Object.
-         * @param mixed  $value Object to Store.
+         * @param string $key Key to be used to map with Object.
+         * @param mixed $value Object to Store.
          *
          * @return void
          */

@@ -30,10 +30,10 @@ class View extends \Dframe\View\View
      *
      * @access public
      *
-     * @param mixed  $templateName Template file to render.
-     * @param array  $args         Variables to make available inside template file.
+     * @param mixed $templateName Template file to render.
+     * @param array $args Variables to make available inside template file.
      * @param string $templatePath Directory to search for template.
-     * @param string $defaultPath  Fallback directory to search for template if not found at $templatePath.
+     * @param string $defaultPath Fallback directory to search for template if not found at $templatePath.
      *
      * @return string
      */
@@ -44,7 +44,7 @@ class View extends \Dframe\View\View
 
     /**
      * @param        $templateName
-     * @param array  $args
+     * @param array $args
      * @param string $templatePath
      * @param string $defaultPath
      *
@@ -83,9 +83,9 @@ class View extends \Dframe\View\View
      *
      * @access public
      *
-     * @param mixed  $templateName Template file to locate.
+     * @param mixed $templateName Template file to locate.
      * @param string $templatePath $templatePath Directory to search for template.
-     * @param string $defaultPath  Fallback directory to search for template if not found at $templatePath.
+     * @param string $defaultPath Fallback directory to search for template if not found at $templatePath.
      *
      * @return string
      */

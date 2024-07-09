@@ -185,8 +185,8 @@ class Router
     /**
      * Dispatches the route of specified $routeType by creating a controller object
      *
-     * @param array  $mvcComponent Model-View-Controller triads for all registered routes.
-     * @param string $routeType    Route Type.
+     * @param array $mvcComponent Model-View-Controller triads for all registered routes.
+     * @param string $routeType Route Type.
      *
      * @return void
      */
@@ -359,9 +359,9 @@ class Router
     /**
      * Returns the Full Qualified Class Name for given class name
      *
-     * @param string $class            Class whose FQCN needs to be found out.
+     * @param string $class Class whose FQCN needs to be found out.
      * @param string $mvcComponentType Could be between 'model', 'view' or 'controller'.
-     * @param string $routeType        Could be 'admin' or 'frontend'.
+     * @param string $routeType Could be 'admin' or 'frontend'.
      *
      * @return string Retuns Full Qualified Class Name.
      * @throws Exception

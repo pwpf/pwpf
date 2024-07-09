@@ -18,8 +18,8 @@ if (!class_exists(__NAMESPACE__ . '\\' . 'Controller')) {
          * Returns key used to store a particular Controller Object
          *
          * @param string $controller_class_name Controller Class Name.
-         * @param string $model_class_name      Model Class Name.
-         * @param string $view_class_name       View Class Name.
+         * @param string $model_class_name Model Class Name.
+         * @param string $view_class_name View Class Name.
          *
          * @return string
          */
